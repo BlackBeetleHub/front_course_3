@@ -12,19 +12,19 @@
                 <br>
                 <row>
                     <row>
-                        <i-input class="login" placeholder="Username" style="width: 300px"/>
+                        <i-input class="login" v-model='username' placeholder="Username" style="width: 300px"/>
                     </row>
                     <br>
                     <row>
-                        <i-input class="login" placeholder="Email" style="width: 300px"/>
+                        <i-input class="email" v-model='email' placeholder="Email" style="width: 300px"/>
                     </row>
                     <br>
                     <row>
-                        <i-input class="login" placeholder="Password" style="width: 300px"/>
+                        <i-input class="password" v-model='password' placeholder="Password" style="width: 300px"/>
                     </row>
                     <br>
                     <row>
-                        <i-button type="success">Get Started</i-button>
+                        <i-button type="success" @click="reg">Get Started</i-button>
                     </row>
                 </row>
         </i-col>
@@ -33,16 +33,28 @@
 </template>
 
 <script>
+import Api from '@/utils/Api'
 export default {
   name: 'SignUp',
   data () {
     return {
-      msg: 'Welcome to Your Vue.js App'
+      msg: 'Welcome to Your Vue.js App',
+      username: '',
+      password: '',
+      email: ''
     }
   },
   methods: {
     show: function () {
       console.log('hello')
+    },
+    reg: async function () {
+      let data = new FormData()
+      data.append('email', this.email)
+      data.append('password', this.password)
+      data.append('username', this.username)
+      const response = await Api.createUser(data)
+      console.log(response.data)
     }
   }
 }

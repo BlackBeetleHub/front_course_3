@@ -4,7 +4,7 @@
       <i-col span="12"> <img src="../assets/logo.png" height="42" width="42"/> </i-col>
       <i-col span="12">
          <router-link to="signup"><i-button type="info">Sign up</i-button></router-link>
-         <i-button type="warning">Log In</i-button>
+         <router-link to="login"><i-button type="warning">Log In</i-button></router-link>
       </i-col>
     </row>
     <row>
