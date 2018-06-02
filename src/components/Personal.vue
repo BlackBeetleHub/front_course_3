@@ -37,7 +37,11 @@
                                 <Icon type="ios-navigate"></Icon>
                                 All paths
                             </template>
-                            <MenuItem name="3-1">Option 1</MenuItem>
+                            <MenuItem name="3-1">
+                            <row :v-for="path in allPaths">
+                                <row @click="showPath(path.name)"> {{ path.name }}</row>
+                            </row>
+                            </MenuItem>
                         </Submenu>
                     </Menu>
                 </Sider>
@@ -86,7 +90,7 @@
 import "@/utils/mapquest";
 import Chart from "chart.js";
 import Statistics from "@/utils/statistics.js";
-import Api from '@/utils/Api'
+import Api from "@/utils/Api";
 
 export default {
   name: "Personal",
@@ -96,13 +100,13 @@ export default {
       email: "",
       map: "",
       path_name: "",
-      curCreatingPath: []
+      curCreatingPath: [],
+      allPaths:[]
     };
   },
-  mounted() {
-      console.log(localStorage.getItem('token'))
-    if(localStorage.getItem('token') === null) {
-        this.$router.push('/login')
+  async mounted() {
+    if (localStorage.getItem("token") === null) {
+      this.$router.push("/login");
     }
     L.mapquest.key = "yOjPR23630BKlGLZHfJVBGKzIUtEi2Ue";
     this.map = L.mapquest.map("map", {
@@ -137,8 +141,14 @@ export default {
       document.getElementById("todayChart"),
       todayData
     );
+
+    let resp = await Api.getAllNamePath({params: {}});
+    this.allPaths = resp.data
   },
   methods: {
+    showPath: function (name) {
+        console.log(name)
+    },
     getLatLng: function(p1, p2, p3, p4) {
       return p1.latlng;
     },
@@ -154,28 +164,34 @@ export default {
       });
     },
     clearMap: function(params) {
-      this.map.remove()
+      this.map.remove();
       this.map = L.mapquest.map("map", {
         center: [50.002327786606195, -323.632080084607],
         layers: L.mapquest.tileLayer("map"),
         zoom: 12
       });
+      L.DomEvent.addListener(this.map, "click", this.addMarker);
       this.curCreatingPath = [];
+      this.path_name = "";
     },
     createPath: async function(params) {
-        let data = new FormData()
-        data.append('points', JSON.stringify(this.curCreatingPath))
-        data.append('name', this.path_name)
-        let resp = await Api.createPath(data)
-        console.log(resp.data)
+      let data = new FormData();
+      data.append("points", JSON.stringify(this.curCreatingPath));
+      data.append("name", this.path_name);
+      let resp = await Api.createPath(data);
+      if (resp.data === "ok") {
+        this.$Message.success("Way was saved");
+      } else {
+        this.$Message.error("Name already use in your profile");
+      }
     },
     logOut: function(params) {
-        console.log("logOut")
-        localStorage.setItem('token', '')
-        localStorage.setItem('id', '')
-        localStorage.setItem('email', '')
-        localStorage.setItem('username', '')
-        this.$router.push('/login')
+      console.log("logOut");
+      localStorage.setItem("token", "");
+      localStorage.setItem("id", "");
+      localStorage.setItem("email", "");
+      localStorage.setItem("username", "");
+      this.$router.push("/login");
     }
   }
 };

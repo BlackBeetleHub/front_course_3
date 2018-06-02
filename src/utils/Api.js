@@ -35,5 +35,11 @@ export default {
   },
   createPath (params) {
     return Host.Host().post('/create_path', decorate_post(params))
+  },
+  getAllNamePath (params) {
+    return Host.Host().get('/get_all_name_path', decorate_get(params))
+  },
+  getPathByName (params) {
+    return Host.Host().get('/get_path_by_name', decorate_get(params))
   }
 }
