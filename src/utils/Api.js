@@ -6,6 +6,7 @@ axios.defaults.headers.post['Content-Type'] = 'multipart/form-data'
 
 function decorate_get(params) {
   params.params['token'] = localStorage.getItem('token')
+  return params
 }
 
 function decorate_post(params) {
@@ -20,7 +21,7 @@ export default {
     return Host.Host().post('/login', params)
   },
   check (params) {
-    return Host.Host().get('/request', params)
+    return Host.Host().get('/request', decorate_get(params))
   },
   loadPost (params) {
     return Host.Host().get('/post', params)

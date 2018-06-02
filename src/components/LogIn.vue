@@ -47,7 +47,12 @@ export default {
       data.append('password', this.password)
       let resp = await Api.loginUser(data)
       localStorage.setItem('token', resp.data.token)
-      this.$router.push('/')
+      localStorage.setItem('id', resp.data.id)
+      localStorage.setItem('email', resp.data.email)
+      localStorage.setItem('username', this.username)
+      resp = await Api.check({params: {}})
+      console.log(resp.data)
+      this.$router.push('/personal')
     }
   }
 }
