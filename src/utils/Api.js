@@ -41,5 +41,8 @@ export default {
   },
   getPathByName (params) {
     return Host.Host().get('/get_path_by_name', decorate_get(params))
+  },
+  getStatistics (params) {
+    return Host.IoT().get('/get_data', params)
   }
 }

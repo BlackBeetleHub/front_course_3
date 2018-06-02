@@ -2,45 +2,18 @@
     <div class="layout">
         <Layout>
             <Header>
-                <Menu mode="horizontal" theme="dark" active-name="1">
-                    <div class="layout-logo"></div>
-                    <div class="layout-nav">
-                        <MenuItem name="1">
-                            <Avatar icon="person"/>
-                            {{ email }}
-                        </MenuItem>
-                        <MenuItem name="2">
-                            <div @click='logOut'><Icon type="log-out" size="30" style="margin-top: 15px;"></Icon></div>
-                        </MenuItem>
-                    </div>
-                </Menu>
+                <NavBar></NavBar>
             </Header>
             <Layout>
-                <Sider hide-trigger :style="{background: '#fff'}" width="400">
-                    <Menu active-name="1-2" theme="light" width="auto" :open-names="['1']">
+                <Sider hide-trigger :style="{background: '#fff'}" width="425">
+                    <Menu active-name="1" theme="light" width="auto" :open-names="['1']">
                         <Submenu name="1">
-                            <template slot="title">
-                                <Icon type="ios-analytics"></Icon>
-                                Top
-                            </template>
-                            <MenuItem name="1-1">Option 1</MenuItem>
-                        </Submenu>
-                        <Submenu name="2">
-                            <template slot="title">
-                                <Icon type="ios-keypad"></Icon>
-                                News
-                            </template>
-                            <MenuItem name="2-1">Option 1</MenuItem>
-                        </Submenu>
-                        <Submenu name="3">
                             <template slot="title">
                                 <Icon type="ios-navigate"></Icon>
                                 All paths
                             </template>
                             <MenuItem name="3-1">
-                            <row :v-for="path in allPaths">
-                                <row @click="showPath(path.name)"> {{ path.name }}</row>
-                            </row>
+                                <ListPaths :list="allPaths" :map="map"></ListPaths>
                             </MenuItem>
                         </Submenu>
                     </Menu>
@@ -91,13 +64,13 @@ import "@/utils/mapquest";
 import Chart from "chart.js";
 import Statistics from "@/utils/statistics.js";
 import Api from "@/utils/Api";
+import NavBar from "@/templates/HeaderBar"
+import ListPaths from "@/templates/ListPaths"
 
 export default {
   name: "Personal",
   data() {
     return {
-      msg: "Welcome to Your Vue.js App",
-      email: "",
       map: "",
       path_name: "",
       curCreatingPath: [],
@@ -114,34 +87,40 @@ export default {
       layers: L.mapquest.tileLayer("map"),
       zoom: 12
     });
-    this.email = localStorage.getItem("email");
     L.DomEvent.addListener(this.map, "click", this.addMarker);
     var todayData = Statistics.createEmptyStatistics();
-    todayData.data.labels = [
-      "Red",
-      "Blue",
-      "Yellow",
-      "Green",
-      "Purple",
-      "Orange"
-    ];
+    todayData.data.labels = [];
+    let respStatistics = await Api.getStatistics({params: {}});
+    respStatistics = respStatistics.data
+    console.log(respStatistics)
+    let humidityToday = []
+    let noiseToday = []
+    for(let i = 0; i < respStatistics.length;i++) {
+        humidityToday.push(Number(respStatistics[i].humidity))
+        noiseToday.push(Number(respStatistics[i].noise))
+        let timeTodayLast = new Date(respStatistics[respStatistics.length - 1].time)
+    }
+    let timeTodayFirst = new Date(respStatistics[0].time)
+    console.log(timeTodayFirst)
+    let timeTodayLast = new Date(respStatistics[respStatistics.length - 1].time)
+    todayData.data.labels.push(timeTodayFirst.getHours() + ":" + timeTodayFirst.getMinutes())
+    todayData.data.labels.push(timeTodayLast.getHours() + ":" + timeTodayLast.getMinutes())
     todayData.data.datasets = [
       {
         label: "humidity",
         borderColor: "rgb(255, 99, 132)",
-        data: [12, 19, 3, 5, 2, 3]
+        data: humidityToday
       },
       {
         label: "noise",
         borderColor: "rgb(132, 99, 255)",
-        data: [19, 12, 5, 3, 3, 2]
+        data: noiseToday
       }
     ];
     var myLineChart = new Chart(
       document.getElementById("todayChart"),
       todayData
     );
-
     let resp = await Api.getAllNamePath({params: {}});
     this.allPaths = resp.data
   },
@@ -184,40 +163,18 @@ export default {
       } else {
         this.$Message.error("Name already use in your profile");
       }
-    },
-    logOut: function(params) {
-      console.log("logOut");
-      localStorage.setItem("token", "");
-      localStorage.setItem("id", "");
-      localStorage.setItem("email", "");
-      localStorage.setItem("username", "");
-      this.$router.push("/login");
     }
-  }
+  },
+  components: {NavBar, ListPaths}
 };
 </script>
 <style>
 @import url("https://api.mqcdn.com/sdk/mapquest-js/v1.3.1/mapquest.css");
-.layout-nav {
-  width: 420px;
-  margin: 0 auto;
-  margin-right: 20px;
-}
 .layout {
   border: 1px solid #d7dde4;
   background: #f5f7f9;
   position: relative;
   border-radius: 4px;
   overflow: hidden;
-}
-.layout-logo {
-  width: 100px;
-  height: 30px;
-  background: #5b6270;
-  border-radius: 3px;
-  float: left;
-  position: relative;
-  top: 15px;
-  left: 20px;
 }
 </style>
