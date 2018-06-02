@@ -10,7 +10,7 @@
                             {{ email }}
                         </MenuItem>
                         <MenuItem name="2">
-                            <Icon type="log-out" size="30" style="margin-top: 15px;"></Icon>
+                            <div @click='logOut'><Icon type="log-out" size="30" style="margin-top: 15px;"></Icon></div>
                         </MenuItem>
                     </div>
                 </Menu>
@@ -44,8 +44,8 @@
                 <Layout :style="{padding: '0 24px 24px'}">
                     <Breadcrumb :style="{margin: '24px 0'}">
                         <Input v-model="path_name" placeholder="Enter path name..." style="width: 300px"></Input>
-                        <Button type="ghost">Save</Button>
-                        <Button type="dashed">Clear</Button>
+                        <Button type="ghost" v-on:click="createPath">Save</Button>
+                        <Button type="dashed" v-on:click="clearMap">Clear</Button>
                     </Breadcrumb>
                     <Content :style="{padding: '24px', minHeight: '280px', background: '#fff'}">
                         <div id="map" style="width: 100%; height: 500px;">
@@ -86,6 +86,7 @@
 import "@/utils/mapquest";
 import Chart from "chart.js";
 import Statistics from "@/utils/statistics.js";
+import Api from '@/utils/Api'
 
 export default {
   name: "Personal",
@@ -99,8 +100,11 @@ export default {
     };
   },
   mounted() {
+      console.log(localStorage.getItem('token'))
+    if(localStorage.getItem('token') === null) {
+        this.$router.push('/login')
+    }
     L.mapquest.key = "yOjPR23630BKlGLZHfJVBGKzIUtEi2Ue";
-    console.log(L);
     this.map = L.mapquest.map("map", {
       center: [50.002327786606195, -323.632080084607],
       layers: L.mapquest.tileLayer("map"),
@@ -109,36 +113,69 @@ export default {
     this.email = localStorage.getItem("email");
     L.DomEvent.addListener(this.map, "click", this.addMarker);
     var todayData = Statistics.createEmptyStatistics();
-    todayData.data.labels = ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"]
-    todayData.data.datasets = [ {
-              label: "humidity",
-              borderColor: 'rgb(255, 99, 132)',
-              data: [12, 19, 3, 5, 2, 3]
-          },
-          {
-              label: "noise",
-              borderColor: 'rgb(132, 99, 255)',
-              data: [19, 12, 5, 3, 3, 2]
-          }] 
-    var myLineChart = new Chart(document.getElementById("todayChart"), todayData);
+    todayData.data.labels = [
+      "Red",
+      "Blue",
+      "Yellow",
+      "Green",
+      "Purple",
+      "Orange"
+    ];
+    todayData.data.datasets = [
+      {
+        label: "humidity",
+        borderColor: "rgb(255, 99, 132)",
+        data: [12, 19, 3, 5, 2, 3]
+      },
+      {
+        label: "noise",
+        borderColor: "rgb(132, 99, 255)",
+        data: [19, 12, 5, 3, 3, 2]
+      }
+    ];
+    var myLineChart = new Chart(
+      document.getElementById("todayChart"),
+      todayData
+    );
   },
   methods: {
     getLatLng: function(p1, p2, p3, p4) {
       return p1.latlng;
     },
     addMarker: function(params) {
-      // Kharkiv: {lat: , -323.77}
-      console.log(params)
-      let latlng = this.getLatLng(params)
+      let latlng = this.getLatLng(params);
       L.marker(latlng, {
         icon: L.mapquest.icons.marker(),
         draggable: false
       }).addTo(this.map);
       this.curCreatingPath.push({
-          lat: latlng.lat,
-          lng: latlng.lng
-          })
-      console.log(this.curCreatingPath)
+        lat: latlng.lat,
+        lng: latlng.lng
+      });
+    },
+    clearMap: function(params) {
+      this.map.remove()
+      this.map = L.mapquest.map("map", {
+        center: [50.002327786606195, -323.632080084607],
+        layers: L.mapquest.tileLayer("map"),
+        zoom: 12
+      });
+      this.curCreatingPath = [];
+    },
+    createPath: async function(params) {
+        let data = new FormData()
+        data.append('points', JSON.stringify(this.curCreatingPath))
+        data.append('name', this.path_name)
+        let resp = await Api.createPath(data)
+        console.log(resp.data)
+    },
+    logOut: function(params) {
+        console.log("logOut")
+        localStorage.setItem('token', '')
+        localStorage.setItem('id', '')
+        localStorage.setItem('email', '')
+        localStorage.setItem('username', '')
+        this.$router.push('/login')
     }
   }
 };

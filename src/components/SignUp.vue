@@ -1,5 +1,6 @@
 <template>
   <div class="hello">
+      <br/>
     <row>
       <i-col span="12"> <img src="../assets/logo.png" height="42" width="42"/> </i-col>
       <i-col span="12">
@@ -33,47 +34,48 @@
 </template>
 
 <script>
-import Api from '@/utils/Api'
+import Api from "@/utils/Api";
 export default {
-  name: 'SignUp',
-  data () {
+  name: "SignUp",
+  data() {
     return {
-      msg: 'Welcome to Your Vue.js App',
-      username: '',
-      password: '',
-      email: ''
-    }
+      msg: "Welcome to Your Vue.js App",
+      username: "",
+      password: "",
+      email: ""
+    };
   },
   methods: {
-    show: function () {
-      console.log('hello')
+    show: function() {
+      console.log("hello");
     },
-    reg: async function () {
-      let data = new FormData()
-      data.append('email', this.email)
-      data.append('password', this.password)
-      data.append('username', this.username)
-      const response = await Api.createUser(data)
-      console.log(response.data)
+    reg: async function() {
+      let data = new FormData();
+      data.append("email", this.email);
+      data.append("password", this.password);
+      data.append("username", this.username);
+      const response = await Api.createUser(data);
+      console.log(response.data);
+      this.$router.push('/login')
     }
   }
-}
+};
 </script>
 
 <style>
-    .reg-box{
-        margin-top: 15px;
-        padding: 20px;
-        box-shadow: 0 0 5px;
-    }
-    .h2-how {
-        font-size: 36px;
-        color: #464c5b;
-        font-weight: bold;
-    }
-    .h3 {
-        font-size: 20px;
-        color: #464c5b;
-        font-weight: bold;
-    }
+.reg-box {
+  margin-top: 15px;
+  padding: 20px;
+  box-shadow: 0 0 5px;
+}
+.h2-how {
+  font-size: 36px;
+  color: #464c5b;
+  font-weight: bold;
+}
+.h3 {
+  font-size: 20px;
+  color: #464c5b;
+  font-weight: bold;
+}
 </style>

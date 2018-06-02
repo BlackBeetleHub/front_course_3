@@ -1,9 +1,10 @@
 <template>
   <div class="hello">
+      <br/>
     <row>
       <i-col span="12"> <img src="../assets/logo.png" height="42" width="42"/> </i-col>
       <i-col span="12">
-         <i-button type="warning">Log In</i-button>
+         <h3 class="h3">New user? <a href="#/signup">Sign up</a> to create your account </h3>
       </i-col>
      </row>
     <row type="flex" justify="center" align="middle" >
@@ -66,6 +67,11 @@ export default {
     }
     .h2-how {
         font-size: 36px;
+        color: #464c5b;
+        font-weight: bold;
+    }
+    .h3 {
+        font-size: 20px;
         color: #464c5b;
         font-weight: bold;
     }
