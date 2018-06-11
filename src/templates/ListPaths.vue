@@ -5,7 +5,6 @@
 <script>
 import "@/utils/mapquest";
 import Api from "@/utils/Api";
-
 export default {
   props: ["list", "map"],
   data() {
@@ -38,8 +37,7 @@ export default {
                     }
                   }
                 },
-                "View"
-              ),
+                "View"),
               h(
                 "Button",
                 {
